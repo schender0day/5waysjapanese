@@ -1,0 +1,29 @@
+{
+  "waysToSayGoodbye": [
+    {
+      "japanese": "さようなら",
+      "english": "Sayōnara",
+      "explanation": "This phrase is a formal and polite way to say goodbye. It is often used when parting ways for an extended period or when you may not see the person for a while."
+    },
+    {
+      "japanese": "じゃあね",
+      "english": "Jāne",
+      "explanation": "This phrase is a casual and friendly way to say goodbye. It is commonly used among friends, classmates, or people of similar age groups."
+    },
+    {
+      "japanese": "またね",
+      "english": "Matane",
+      "explanation": "This phrase is an informal way to say goodbye. It is similar to 'See you later' in English and is commonly used in casual settings."
+    },
+    {
+      "japanese": "お先に失礼します",
+      "english": "O-saki ni shitsurei shimasu",
+      "explanation": "This phrase is used in more formal situations, such as leaving a workplace or a meeting. It translates to 'I apologize for leaving before you' and is a polite way to say goodbye while expressing respect."
+    },
+    {
+      "japanese": "おやすみなさい",
+      "english": "Oyasumi nasai",
+      "explanation": "This phrase is used to say 'Goodnight' or 'Sleep well' when parting ways in the evening or before going to bed. It is a polite and considerate way to bid farewell at the end of the day."
+    }
+  ]
+}
