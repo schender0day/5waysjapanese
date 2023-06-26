@@ -94,3 +94,6 @@ final_clip = concatenate_videoclips(clips)
 final_clip.write_videofile("media/final_output.mp4", fps=24)
 
 logging.info("Video generation completed")
+git config --global user.name "schender0day"
+git config --global user.email "schender0day@gmail.com"
+git config --global user.password
