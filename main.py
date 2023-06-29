@@ -104,7 +104,7 @@ silence = AudioArrayClip(np.array([[0]*44100]*2).T, fps=44100)
 # Generate welcome audio and video
 welcome_filename = "media/welcome.mp3"
 key = list(data.keys())[0]
-text_to_speech(f"Welcome, let's talk about 5 ways to say {key} in Japanese", welcome_filename, 'en')
+text_to_speech(f"Let's talk about 5 ways to say {key} in Japanese", welcome_filename, 'en')
 welcome_audio = AudioFileClip(welcome_filename).fx(afx.audio_normalize)
 if resolution == pshort:
     thumbnail_video = VideoFileClip("media/916_thumbnail.mp4").subclip(0, 5)
