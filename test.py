@@ -24,9 +24,9 @@ def text_to_speech(text, filename, language):
     logging.info(f"Generated audio file: {filename}")
 
 
-def create_text_clip(phrase, fontsize, font, color, duration, position):
+def create_text_clip(phrase, fontsize, font, color, duration, position, margin):
     return (
-        TextClip(phrase, fontsize=fontsize, font=font, color=color, method='caption', align='center', size=(1080, 1920))
+        TextClip(phrase, fontsize=fontsize, font=font, color=color, method='caption', align='center', size=(1080 - 2*margin, 1920 - 2*margin))
         .set_duration(duration)
         .set_position(position))
 
@@ -54,15 +54,19 @@ for video_index, phrase in enumerate(values, start=1):
     silence = AudioArrayClip(np.array([[0] * 44100] * 2).T, fps=44100)
 
     welcome_filename = f"media/welcome_{video_index}.mp3"
-    text_to_speech(f"Let's talk 7 ways to say {key} in Japanese.", welcome_filename, 'en')
+    text_to_speech(f"Let's talk about 7 ways to say {key} in Japanese. Part {video_index}", welcome_filename, 'en')
     welcome_audio = AudioFileClip(welcome_filename).fx(afx.audio_normalize)
     thumbnail_video = VideoFileClip("media/916_thumbnail.mp4").subclip(0, 5)
     thumbnail_video = thumbnail_video.set_duration(5).set_audio(welcome_audio)
-
+    margin_text = 200
+    margin = - 350
     # Create video index text clip
-    index_text_clip = create_text_clip(f"Episode {video_index}/7", 36, 'media/Gliker-Black.ttf', 'dark red', thumbnail_video.duration,
-                                       ('center', -900))
-    welcome_video = CompositeVideoClip([thumbnail_video, index_text_clip])
+    index_text_clip = create_text_clip(f"Part {video_index}/7", 36, 'media/AlegreyaSans-Black.ttf', 'dark red', thumbnail_video.duration,
+                                       ('center', -900), 0)
+    title_text_clip = create_text_clip(f"{key}", 72, 'media/Gliker-Black.ttf', 'dark red',
+                                       thumbnail_video.duration,
+                                       (50, -250),  0)
+    welcome_video = CompositeVideoClip([thumbnail_video, index_text_clip, title_text_clip])
 
     audio_clips.append(welcome_audio)
     audio_clips.append(silence.set_duration(2))
@@ -78,36 +82,39 @@ for video_index, phrase in enumerate(values, start=1):
     jp_audio = AudioFileClip(jp_filename).fx(afx.audio_normalize)
     en_audio = AudioFileClip(en_filename).fx(afx.audio_normalize)
 
-
     # Repeat Japanese audio 3 times
-    jp_audio_repeated = concatenate_audioclips([jp_audio, silence, silence,jp_audio, silence, silence, jp_audio])
+    jp_audio_repeated = concatenate_audioclips([jp_audio, silence, silence, jp_audio, silence, silence, jp_audio])
 
     # Add Japanese and English audio to audio_clips
     audio_clips.append(jp_audio_repeated)
-    en_audio = concatenate_audioclips([silence, en_audio])
+    en_audio = concatenate_audioclips([silence, silence,en_audio])
     audio_clips.append(en_audio)
 
     # Generate video with text overlays
     # modified to match the duration of jp_audio_repeated and en_audio
 
+    # Here we add padding to the full_video so that its duration matches the duration of the audio clips
     full_video = bg_video.subclip(0, jp_audio_repeated.duration + en_audio.duration)
-    index_text_clip = create_text_clip(f"Episode {video_index}/7", 36, 'media/Gliker-Black.ttf', 'dark red',
+
+    # full_video = concatenate_videoclips([full_video])
+
+    index_text_clip = create_text_clip(f"Part {video_index}/7", 36, 'media/Gliker-Black.ttf', 'dark red',
                                        full_video.duration,
-                                       ('center', -900))
+                                       ('center', -900),0)
     full_video = CompositeVideoClip([full_video, index_text_clip])
-    font_size = 75  # Define the size of text
+    font_size = 65  # Define the size of text
     head_size = 85  # Define the size of the header
     en_head_size = 80
 
     line_height = 30  # Define the height of line
-    margin = -350
+    # margin = 0
 
     # Generate video with text overlays
     # modified to match the duration of jp_audio_repeated and en_audio
     full_video = bg_video.subclip(0, jp_audio_repeated.duration + en_audio.duration)
     # Create video index text clip for full_video
-    index_text_clip_full = create_text_clip(f"Episode {video_index}/7", 36, 'media/Gliker-Black.ttf', 'dark red', full_video.duration,
-                                            ('center', -900))
+    index_text_clip_full = create_text_clip(f"Part {video_index}/7", 36, 'media/Gliker-Black.ttf', 'dark red', full_video.duration,
+                                            ('center', -900),0)
     full_video = CompositeVideoClip([full_video, index_text_clip_full])
     # Positions for the text
     y_position_jp = margin
@@ -115,13 +122,13 @@ for video_index, phrase in enumerate(values, start=1):
     y_position_explanation = y_position_en + font_size + line_height + 400
 
     # Create TextClips with the helper function
-    jp_text_clip = create_text_clip(phrase['japanese'], head_size, get_font_by_platform(), 'dark red',
-                                    jp_audio_repeated.duration + en_audio.duration, ('center', y_position_jp))
-    en_text_clip = create_text_clip(phrase['english'], head_size, get_font_by_platform(), 'black',
-                                    jp_audio_repeated.duration + en_audio.duration, ('center', y_position_en))
+    jp_text_clip = create_text_clip(phrase['japanese'], head_size + 20, get_font_by_platform(), 'dark red',
+                                    jp_audio_repeated.duration + en_audio.duration, ('center', y_position_jp),0)
+    en_text_clip = create_text_clip(phrase['english'], head_size - 20, get_font_by_platform(), 'black',
+                                    jp_audio_repeated.duration + en_audio.duration, ('center', y_position_en),0)
     explanation_text_clip = create_text_clip(phrase['explanation'], font_size, get_font_by_platform(), 'black',
                                              jp_audio_repeated.duration + en_audio.duration,
-                                             ('center', y_position_explanation))
+                                             ('center', y_position_explanation),0)
 
     # Create a composite video clip that includes the video and all text clips
     # Set the duration of the composite video clip to the total duration of the audio clips
@@ -131,15 +138,12 @@ for video_index, phrase in enumerate(values, start=1):
 
     # # Add combined clip to video_clips
     video_clips.append(combined_clip)
-    ending_video = VideoFileClip("media/916_ending.mp4").subclip(0, 8)
-    video_clips.append(ending_video)
-    # video_clips.append(combined_clip)
     # ending_video = VideoFileClip("media/916_ending.mp4").subclip(0, 5)
     # video_clips.append(ending_video)
-    text_to_speech("Thanks for watching Explore my channel for more videos in this series and full videos with examples.", "media/ending.mp3", 'en')
+    # video_clips.append(combined_clip)
+    text_to_speech("Explore my channel for more videos in this series and full videos with examples.", "media/ending.mp3", 'en')
     ending_audio = AudioFileClip("media/ending.mp3").fx(afx.audio_normalize)
     audio_clips.append(ending_audio)
-
     audio_clips.append(silence.set_duration(1))
 
     # # Concatenate all audio and video clips
@@ -147,9 +151,8 @@ for video_index, phrase in enumerate(values, start=1):
     final_video_clip = concatenate_videoclips(video_clips)
     # final_audio_clip = concatenate_audioclips(audio_clips)
     # final_video_clip = concatenate_videoclips(video_clips)
-    #
     # # Trim final_audio_clip to match final_video_clip
-    final_audio_clip = final_audio_clip.subclip(0, final_video_clip.duration)
+    final_audio_clip = final_audio_clip.subclip(0, final_audio_clip.duration)
     # final_audio_clip = final_audio_clip.subclip(0, final_video_clip.duration)
     #
     # # Attach audio to video
